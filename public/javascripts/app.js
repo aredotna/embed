@@ -406,7 +406,6 @@
     CollectionView.prototype.id = 'collection';
 
     CollectionView.prototype.initialize = function() {
-      document.title = this.model.get('title');
       return this.template = require("./templates/collection/" + this.options.mode);
     };
 
@@ -465,9 +464,7 @@
 
     SingleView.prototype.className = 'block';
 
-    SingleView.prototype.initialize = function() {
-      return document.title = this.model.get('title') ? "" + (this.options.channel.get('title')) + ": " + (this.model.get('title')) : this.options.channel.get('title');
-    };
+    SingleView.prototype.initialize = function() {};
 
     SingleView.prototype.render = function(id) {
       this.$el.html(template({

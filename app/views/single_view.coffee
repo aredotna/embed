@@ -5,13 +5,7 @@ class exports.SingleView extends BlockView
   id: 'single'
   className: 'block'
 
-  initialize: ->
-    # Set the page title
-    document.title = 
-      if @model.get 'title'
-        "#{@options.channel.get 'title'}: #{@model.get 'title'}"
-      else
-        @options.channel.get 'title'
+  initialize: -> # Override block_view's template
 
   render: (id) ->
     @$el.html template
