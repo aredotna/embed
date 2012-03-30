@@ -106,6 +106,10 @@
       return "#arena";
     };
 
+    BrunchApplication.prototype.createEl = function() {
+      return $('body').append("<div id='" + (this.el().replace('#', '')) + "'></div>");
+    };
+
     BrunchApplication.prototype.loading = function() {
       return {
         start: function() {
@@ -361,6 +365,7 @@
     }
 
     Application.prototype.initialize = function() {
+      this.createEl();
       this.loading().start();
       return this.router = new MainRouter;
     };

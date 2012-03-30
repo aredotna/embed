@@ -3,6 +3,7 @@
 
 class exports.Application extends BrunchApplication
   initialize: ->
+    @createEl()
     @loading().start()
     @router = new MainRouter
     
