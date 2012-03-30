@@ -4,7 +4,6 @@ class exports.CollectionView extends Backbone.View
   id: 'collection'
 
   initialize: ->
-    # Possible values: ['compact', 'list', 'grid', 'slideshow', 'scatter']
     @template = require "./templates/collection/#{@options.mode}"
 
   addAll: ->

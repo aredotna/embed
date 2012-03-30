@@ -444,11 +444,9 @@
 (this.require.define({
   "views/single_view": function(exports, require, module) {
     (function() {
-  var BlockView, template,
+  var BlockView,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-  template = require('./templates/single/list');
 
   BlockView = require('views/block_view').BlockView;
 
@@ -464,10 +462,12 @@
 
     SingleView.prototype.className = 'block';
 
-    SingleView.prototype.initialize = function() {};
+    SingleView.prototype.initialize = function() {
+      return this.template = require('./templates/single/list');
+    };
 
     SingleView.prototype.render = function(id) {
-      this.$el.html(template({
+      this.$el.html(this.template({
         channel: this.options.channel.toJSON(),
         block: this.model.toJSON(),
         blocks: this.collection.toJSON(),
