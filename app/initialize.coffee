@@ -5,5 +5,5 @@ class exports.Application extends BrunchApplication
   initialize: ->
     @loading().start()
     @router = new MainRouter
-
+    
 window.app = new exports.Application

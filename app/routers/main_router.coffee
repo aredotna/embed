@@ -22,7 +22,7 @@ class exports.MainRouter extends Backbone.Router
         model       : @channel
         collection  : @channel.blocks
         mode        : mode
-      $('body')
+      $(app.el())
         .attr('class', 'collection')
         .html @collectionView.render().el
 
@@ -32,6 +32,6 @@ class exports.MainRouter extends Backbone.Router
         model       : @channel.blocks.get id
         collection  : @channel.blocks
         channel     : @channel
-      $('body')
+      $(app.el())
         .attr('class', 'single')
         .html @singleView.render().el

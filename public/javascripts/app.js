@@ -102,13 +102,17 @@
       return null;
     };
 
+    BrunchApplication.prototype.el = function() {
+      return "#arena";
+    };
+
     BrunchApplication.prototype.loading = function() {
       return {
         start: function() {
-          return $('body').addClass('loading');
+          return $(app.el()).addClass('loading');
         },
         stop: function() {
-          return $('body').removeClass('loading');
+          return $(app.el()).removeClass('loading');
         }
       };
     };
@@ -313,7 +317,7 @@
           collection: _this.channel.blocks,
           mode: mode
         });
-        return $('body').attr('class', 'collection').html(_this.collectionView.render().el);
+        return $(app.el()).attr('class', 'collection').html(_this.collectionView.render().el);
       });
     };
 
@@ -325,7 +329,7 @@
           collection: _this.channel.blocks,
           channel: _this.channel
         });
-        return $('body').attr('class', 'single').html(_this.singleView.render().el);
+        return $(app.el()).attr('class', 'single').html(_this.singleView.render().el);
       });
     };
 

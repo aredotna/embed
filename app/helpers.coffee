@@ -7,6 +7,8 @@ class exports.BrunchApplication
   initialize: ->
     null
 
+  el: -> "#arena"
+
   loading: ->
-    start: -> $('body').addClass    'loading'
-    stop:  -> $('body').removeClass 'loading'
+    start: -> $(app.el()).addClass    'loading'
+    stop:  -> $(app.el()).removeClass 'loading'
