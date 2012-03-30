@@ -103,11 +103,11 @@
     };
 
     BrunchApplication.prototype.el = function() {
-      return "#arena";
+      return "#arena_" + (this.findAndExtractSource());
     };
 
     BrunchApplication.prototype.createEl = function() {
-      return $('body').append("<div id='" + (this.el().replace('#', '')) + "'></div>");
+      return $(document.getElementsByTagName('arena:channel-widget')).html("<div id='" + (this.el().replace('#', '')) + "'></div>");
     };
 
     BrunchApplication.prototype.loading = function() {
@@ -119,6 +119,10 @@
           return $(app.el()).removeClass('loading');
         }
       };
+    };
+
+    BrunchApplication.prototype.findAndExtractSource = function() {
+      return $(document.getElementsByTagName('arena:channel-widget')).attr('source');
     };
 
     return BrunchApplication;
@@ -641,7 +645,7 @@
       __out.push('<div class="thumb">\n  ');
     
       if (this.block.image_thumb) {
-        __out.push('\n    <div class="image">\n      <a href="/#/');
+        __out.push('\n    <div class="image">\n      <a href="#/');
         __out.push(__sanitize(this.channel.slug));
         __out.push('/show:');
         __out.push(__sanitize(this.block.id));
@@ -651,7 +655,7 @@
         __out.push(__sanitize(this.block.title));
         __out.push('" />\n      </a>\n    </div>\n  ');
       } else if (this.block.title) {
-        __out.push('\n    <a href="/#/');
+        __out.push('\n    <a href="#/');
         __out.push(__sanitize(this.channel.slug));
         __out.push('/show:');
         __out.push(__sanitize(this.block.id));
@@ -659,7 +663,7 @@
         __out.push(__sanitize(_.str.prune(this.block.title, 30)));
         __out.push('\n    </a>\n  ');
       } else {
-        __out.push('\n    <a href="/#/');
+        __out.push('\n    <a href="#/');
         __out.push(__sanitize(this.channel.slug));
         __out.push('/show:');
         __out.push(__sanitize(this.block.id));
@@ -721,7 +725,7 @@
       if (this.prev || this.next) {
         __out.push('\n  <nav>\n    ');
         if (this.prev) {
-          __out.push('\n      <a href="/#/');
+          __out.push('\n      <a href="#/');
           __out.push(__sanitize(this.channel.slug));
           __out.push('/show:');
           __out.push(__sanitize(this.prev.id));
@@ -729,19 +733,19 @@
         }
         __out.push('\n    ');
         if (this.channel.mode) {
-          __out.push('\n      <a href="/#/');
+          __out.push('\n      <a href="#/');
           __out.push(__sanitize(this.channel.slug));
           __out.push('/mode:');
           __out.push(__sanitize(this.channel.mode));
           __out.push('">Up</a>\n    ');
         } else {
-          __out.push('\n      <a href="/#/');
+          __out.push('\n      <a href="#/');
           __out.push(__sanitize(this.channel.slug));
           __out.push('">Up</a>\n    ');
         }
         __out.push('\n    ');
         if (this.next) {
-          __out.push('\n      <a href="/#/');
+          __out.push('\n      <a href="#/');
           __out.push(__sanitize(this.channel.slug));
           __out.push('/show:');
           __out.push(__sanitize(this.next.id));
@@ -810,7 +814,7 @@
         __out.push('\n    </div>\n  ');
       }
     
-      __out.push('\n\n  <!-- UNIVERSAL OUTPUT: -->\n  <div class="metadata">\n    <h3 class="title">\n      <a href="/#/');
+      __out.push('\n\n  <!-- UNIVERSAL OUTPUT: -->\n  <div class="metadata">\n    <h3 class="title">\n      <a href="#/');
     
       __out.push(__sanitize(this.channel.slug));
     
