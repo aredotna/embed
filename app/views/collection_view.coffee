@@ -1,7 +1,7 @@
 {BlockView}     = require 'views/block_view'
 
 class exports.CollectionView extends Backbone.View
-  id: 'collection'
+  id: 'arena_collection'
 
   initialize: ->
     @template = require "./templates/collection/#{@options.mode}"
@@ -16,7 +16,7 @@ class exports.CollectionView extends Backbone.View
       collection  : @model.blocks
       channel     : @model
 
-    @$('#blocks').append view.render().el
+    @$('#arena_blocks').append view.render().el
 
   render: ->
     @$el.html @template

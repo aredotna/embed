@@ -1,66 +1,35 @@
-@import 'nib'
+.arena_channel-widget_container
+  clear: both
 
-body
-  font-size: 14px
-  line-height: 18px
-  font-family: serif
-  padding: 5%
-  // Collection
-  &.collection
-    color: #111
-    background: #fff
-    a
-      color: #000
-  // Single
-  &.single
-    background: #000
-    color: #eee
-    a
-      color: #fff
-  // Loading
-  &.loading
-    background: #fff url('../images/load.gif') top left no-repeat
+  h1, h2, h3, h4
+    &.arena
+      text-align: center
 
-h1, h2, h3, h4, nav
-  font-family: sans-serif
-
-h1, h2, h3, h4
-  text-align: center
-  font-size: 16px
-
-nav
-  margin: 20px 0
-  text-align: center
-
-.title, .content
-  font-size: 16px
-  text-align: left
-
-
-#blocks.list .block, #single.block
-  margin: 20px 0
-  padding-bottom: 20px
-  border-bottom: 1px solid #000
-  .image, .link, .media
+  .nav.arena
+    margin: 1em 0
     text-align: center
-#blocks.grid
-  text-align: center
-  .block
-    display: inline-block
-    height: 250px
-    width: 250px
-    line-height: 250px
-    text-align: center
-    vertical-align: middle
 
-.metadata dl
-  dt
-    font-weight: bold
-  dt, dd
-    line-height: 16px
-    font-size: 12px
-    font-family: sans-serif
-    text-align: left
-    margin: 0
-    a
-      text-decoration: none
+  #arena_blocks.arena_list .arena_block, 
+  #arena_single.arena_block
+    margin: 1em 0
+    .image, .link, .media
+      .display
+        text-align: center
+  #arena_blocks.arena_grid
+    text-align: center
+    .arena_block, .arena_block a
+      display: inline-block
+      height: 220px
+      width: 220px
+      line-height: 220px
+      text-align: center
+      vertical-align: middle
+      img
+        vertical-align: middle !important
+
+  .metadata dl
+    dt
+      font-weight: bold
+    dt, dd
+      text-align: left
+      margin: 0

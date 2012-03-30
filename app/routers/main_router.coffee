@@ -10,8 +10,8 @@ class exports.MainRouter extends Backbone.Router
     '/show::id'   : 'single'
 
   initialize: ->
-    @source  = app.findAndExtractSource()
-    @channel = new Channel()
+    @channel = app.channel
+    @source = @channel.get('source')
 
   collection: (mode = 'grid') ->
     # Save the current view mode in the channel
@@ -23,7 +23,6 @@ class exports.MainRouter extends Backbone.Router
         collection  : @channel.blocks
         mode        : mode
       $(app.el())
-        .attr('class', 'collection')
         .html @collectionView.render().el
 
   single: (id) ->
@@ -33,5 +32,4 @@ class exports.MainRouter extends Backbone.Router
         collection  : @channel.blocks
         channel     : @channel
       $(app.el())
-        .attr('class', 'single')
         .html @singleView.render().el

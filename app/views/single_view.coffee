@@ -1,8 +1,8 @@
 {BlockView} = require 'views/block_view'
 
 class exports.SingleView extends BlockView
-  id: 'single'
-  className: 'block'
+  id: 'arena_single'
+  className: 'arena_block'
 
   initialize: ->
     # Override the block_view template

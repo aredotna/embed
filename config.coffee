@@ -19,6 +19,7 @@ exports.config =
       # even if they are not present here.
       order:
         before: [
+          'vendor/scripts/jquery-check.js',
           'vendor/scripts/console-helper.js',
           'vendor/scripts/jquery-1.7.1.js',
           'vendor/scripts/underscore-1.3.1.js',
@@ -29,9 +30,6 @@ exports.config =
     stylesheets:
       defaultExtension: 'styl'
       joinTo: 'stylesheets/app.css'
-      order:
-        before: ['vendor/styles/normalize.css']
-        after: ['vendor/styles/helpers.css']
 
     templates:
       defaultExtension: 'eco'

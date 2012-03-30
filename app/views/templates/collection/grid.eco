@@ -1,3 +1,1 @@
-<div id="modal" class="hide"></div>
-<div id="blocks" class="grid"></div>
-<h1><%= @channel.title %></h1>
+<div id="arena_blocks" class="arena_grid"></div>

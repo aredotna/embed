@@ -48,35 +48,55 @@
     };
   }
 }).call(this);(this.require.define({
-  "views/block_view": function(exports, require, module) {
+  "views/collection_view": function(exports, require, module) {
     (function() {
-  var __hasProp = Object.prototype.hasOwnProperty,
+  var BlockView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
-  exports.BlockView = (function(_super) {
+  BlockView = require('views/block_view').BlockView;
 
-    __extends(BlockView, _super);
+  exports.CollectionView = (function(_super) {
 
-    function BlockView() {
-      BlockView.__super__.constructor.apply(this, arguments);
+    __extends(CollectionView, _super);
+
+    function CollectionView() {
+      this.addOne = __bind(this.addOne, this);
+      CollectionView.__super__.constructor.apply(this, arguments);
     }
 
-    BlockView.prototype.className = 'block';
+    CollectionView.prototype.id = 'arena_collection';
 
-    BlockView.prototype.initialize = function() {
-      return this.template = require("./templates/single/" + this.options.mode);
+    CollectionView.prototype.initialize = function() {
+      return this.template = require("./templates/collection/" + this.options.mode);
     };
 
-    BlockView.prototype.render = function() {
-      this.$el.html(this.template({
+    CollectionView.prototype.addAll = function() {
+      return this.collection.each(this.addOne);
+    };
+
+    CollectionView.prototype.addOne = function(block) {
+      var view;
+      view = new BlockView({
         mode: this.options.mode,
-        channel: this.options.channel.toJSON(),
-        block: this.model.toJSON()
+        model: block,
+        collection: this.model.blocks,
+        channel: this.model
+      });
+      return this.$('#arena_blocks').append(view.render().el);
+    };
+
+    CollectionView.prototype.render = function() {
+      this.$el.html(this.template({
+        channel: this.model.toJSON(),
+        blocks: this.collection.toJSON()
       }));
+      this.addAll();
       return this;
     };
 
-    return BlockView;
+    return CollectionView;
 
   })(Backbone.View);
 
@@ -103,26 +123,26 @@
     };
 
     BrunchApplication.prototype.el = function() {
-      return "#arena_" + (this.findAndExtractSource());
+      return "#arena_" + (app.channel.get('source'));
     };
 
     BrunchApplication.prototype.createEl = function() {
-      return $(document.getElementsByTagName('arena:channel-widget')).html("<div id='" + (this.el().replace('#', '')) + "'></div>");
+      return ($(document.getElementsByTagName('arena:channel-widget'))).replaceWith("<div data-source='" + (app.channel.get('source')) + "' id='" + (this.el().replace('#', '')) + "' class='arena_channel-widget_container'></div>");
     };
 
     BrunchApplication.prototype.loading = function() {
       return {
         start: function() {
-          return $(app.el()).addClass('loading');
+          return ($(app.el())).addClass('loading');
         },
         stop: function() {
-          return $(app.el()).removeClass('loading');
+          return ($(app.el())).removeClass('loading');
         }
       };
     };
 
     BrunchApplication.prototype.findAndExtractSource = function() {
-      return $(document.getElementsByTagName('arena:channel-widget')).attr('source');
+      return ($(document.getElementsByTagName('arena:channel-widget'))).attr('source');
     };
 
     return BrunchApplication;
@@ -173,6 +193,77 @@
     return Blocks;
 
   })(Backbone.Collection);
+
+}).call(this);
+
+  }
+}));
+(this.require.define({
+  "routers/main_router": function(exports, require, module) {
+    (function() {
+  var BlockView, Channel, CollectionView, SingleView,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  BlockView = require('views/block_view').BlockView;
+
+  SingleView = require('views/single_view').SingleView;
+
+  CollectionView = require('views/collection_view').CollectionView;
+
+  Channel = require('models/channel').Channel;
+
+  exports.MainRouter = (function(_super) {
+
+    __extends(MainRouter, _super);
+
+    function MainRouter() {
+      MainRouter.__super__.constructor.apply(this, arguments);
+    }
+
+    MainRouter.prototype.routes = {
+      '': 'collection',
+      '/mode::mode': 'collection',
+      '/show::id': 'single'
+    };
+
+    MainRouter.prototype.initialize = function() {
+      this.channel = app.channel;
+      return this.source = this.channel.get('source');
+    };
+
+    MainRouter.prototype.collection = function(mode) {
+      var _this = this;
+      if (mode == null) mode = 'grid';
+      this.channel.set({
+        'mode': 'mode',
+        mode: mode
+      });
+      return $.when(this.channel.maybeLoad(this.source)).then(function() {
+        _this.collectionView = new CollectionView({
+          model: _this.channel,
+          collection: _this.channel.blocks,
+          mode: mode
+        });
+        return $(app.el()).html(_this.collectionView.render().el);
+      });
+    };
+
+    MainRouter.prototype.single = function(id) {
+      var _this = this;
+      return $.when(this.channel.maybeLoad(this.source)).then(function() {
+        _this.singleView = new SingleView({
+          model: _this.channel.blocks.get(id),
+          collection: _this.channel.blocks,
+          channel: _this.channel
+        });
+        return $(app.el()).html(_this.singleView.render().el);
+      });
+    };
+
+    return MainRouter;
+
+  })(Backbone.Router);
 
 }).call(this);
 
@@ -250,8 +341,11 @@
       } else {
         this.clear();
         app.loading().start();
-        this.set('slug', slug);
-        this.set('fetching', true);
+        this.set({
+          'slug': slug,
+          'source': slug,
+          'fetching': true
+        });
         return this.fetch({
           success: function() {
             _this.setupBlocks();
@@ -279,86 +373,17 @@
   }
 }));
 (this.require.define({
-  "routers/main_router": function(exports, require, module) {
-    (function() {
-  var BlockView, Channel, CollectionView, SingleView,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-  BlockView = require('views/block_view').BlockView;
-
-  SingleView = require('views/single_view').SingleView;
-
-  CollectionView = require('views/collection_view').CollectionView;
-
-  Channel = require('models/channel').Channel;
-
-  exports.MainRouter = (function(_super) {
-
-    __extends(MainRouter, _super);
-
-    function MainRouter() {
-      MainRouter.__super__.constructor.apply(this, arguments);
-    }
-
-    MainRouter.prototype.routes = {
-      '': 'collection',
-      '/mode::mode': 'collection',
-      '/show::id': 'single'
-    };
-
-    MainRouter.prototype.initialize = function() {
-      this.source = app.findAndExtractSource();
-      return this.channel = new Channel();
-    };
-
-    MainRouter.prototype.collection = function(mode) {
-      var _this = this;
-      if (mode == null) mode = 'grid';
-      this.channel.set({
-        'mode': 'mode',
-        mode: mode
-      });
-      return $.when(this.channel.maybeLoad(this.source)).then(function() {
-        _this.collectionView = new CollectionView({
-          model: _this.channel,
-          collection: _this.channel.blocks,
-          mode: mode
-        });
-        return $(app.el()).attr('class', 'collection').html(_this.collectionView.render().el);
-      });
-    };
-
-    MainRouter.prototype.single = function(id) {
-      var _this = this;
-      return $.when(this.channel.maybeLoad(this.source)).then(function() {
-        _this.singleView = new SingleView({
-          model: _this.channel.blocks.get(id),
-          collection: _this.channel.blocks,
-          channel: _this.channel
-        });
-        return $(app.el()).attr('class', 'single').html(_this.singleView.render().el);
-      });
-    };
-
-    return MainRouter;
-
-  })(Backbone.Router);
-
-}).call(this);
-
-  }
-}));
-(this.require.define({
   "initialize": function(exports, require, module) {
     (function() {
-  var BrunchApplication, MainRouter,
+  var BrunchApplication, Channel, MainRouter,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   BrunchApplication = require('helpers').BrunchApplication;
 
   MainRouter = require('routers/main_router').MainRouter;
+
+  Channel = require('models/channel').Channel;
 
   exports.Application = (function(_super) {
 
@@ -369,6 +394,8 @@
     }
 
     Application.prototype.initialize = function() {
+      this.channel = new Channel();
+      this.channel.set('source', this.findAndExtractSource());
       this.createEl();
       this.loading().start();
       return this.router = new MainRouter();
@@ -379,63 +406,6 @@
   })(BrunchApplication);
 
   window.app = new exports.Application;
-
-}).call(this);
-
-  }
-}));
-(this.require.define({
-  "views/collection_view": function(exports, require, module) {
-    (function() {
-  var BlockView,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-  BlockView = require('views/block_view').BlockView;
-
-  exports.CollectionView = (function(_super) {
-
-    __extends(CollectionView, _super);
-
-    function CollectionView() {
-      this.addOne = __bind(this.addOne, this);
-      CollectionView.__super__.constructor.apply(this, arguments);
-    }
-
-    CollectionView.prototype.id = 'collection';
-
-    CollectionView.prototype.initialize = function() {
-      return this.template = require("./templates/collection/" + this.options.mode);
-    };
-
-    CollectionView.prototype.addAll = function() {
-      return this.collection.each(this.addOne);
-    };
-
-    CollectionView.prototype.addOne = function(block) {
-      var view;
-      view = new BlockView({
-        mode: this.options.mode,
-        model: block,
-        collection: this.model.blocks,
-        channel: this.model
-      });
-      return this.$('#blocks').append(view.render().el);
-    };
-
-    CollectionView.prototype.render = function() {
-      this.$el.html(this.template({
-        channel: this.model.toJSON(),
-        blocks: this.collection.toJSON()
-      }));
-      this.addAll();
-      return this;
-    };
-
-    return CollectionView;
-
-  })(Backbone.View);
 
 }).call(this);
 
@@ -458,9 +428,9 @@
       SingleView.__super__.constructor.apply(this, arguments);
     }
 
-    SingleView.prototype.id = 'single';
+    SingleView.prototype.id = 'arena_single';
 
-    SingleView.prototype.className = 'block';
+    SingleView.prototype.className = 'arena_block';
 
     SingleView.prototype.initialize = function() {
       return this.template = require('./templates/single/list');
@@ -480,6 +450,43 @@
     return SingleView;
 
   })(BlockView);
+
+}).call(this);
+
+  }
+}));
+(this.require.define({
+  "views/block_view": function(exports, require, module) {
+    (function() {
+  var __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  exports.BlockView = (function(_super) {
+
+    __extends(BlockView, _super);
+
+    function BlockView() {
+      BlockView.__super__.constructor.apply(this, arguments);
+    }
+
+    BlockView.prototype.className = 'arena_block';
+
+    BlockView.prototype.initialize = function() {
+      return this.template = require("./templates/single/" + this.options.mode);
+    };
+
+    BlockView.prototype.render = function() {
+      this.$el.html(this.template({
+        mode: this.options.mode,
+        channel: this.options.channel.toJSON(),
+        block: this.model.toJSON()
+      }));
+      return this;
+    };
+
+    return BlockView;
+
+  })(Backbone.View);
 
 }).call(this);
 
@@ -527,11 +534,7 @@
   (function() {
     (function() {
     
-      __out.push('<div id="modal" class="hide"></div>\n<div id="blocks" class="grid"></div>\n<h1>');
-    
-      __out.push(__sanitize(this.channel.title));
-    
-      __out.push('</h1>');
+      __out.push('<div id="arena_blocks" class="arena_grid"></div>');
     
     }).call(this);
     
@@ -583,11 +586,7 @@
   (function() {
     (function() {
     
-      __out.push('<div id="modal" class="hide"></div>\n<div id="blocks" class="list"></div>\n<h1>');
-    
-      __out.push(__sanitize(this.channel.title));
-    
-      __out.push('</h1>');
+      __out.push('<div id="arena_blocks" class="arena_list"></div>');
     
     }).call(this);
     
@@ -639,29 +638,25 @@
   (function() {
     (function() {
     
-      __out.push('<div class="thumb">\n  ');
-    
       if (this.block.image_thumb) {
-        __out.push('\n    <div class="image">\n      <a href="#/show:');
+        __out.push('\n  <a href="#/show:');
         __out.push(__sanitize(this.block.id));
-        __out.push('">\n        <img src="');
+        __out.push('">\n    <img src="');
         __out.push(__sanitize(this.block.image_thumb));
         __out.push('" alt="');
         __out.push(__sanitize(this.block.title));
-        __out.push('" />\n      </a>\n    </div>\n  ');
+        __out.push('" />\n  </a>\n');
       } else if (this.block.title) {
-        __out.push('\n    <a href="#/show:');
+        __out.push('\n  <a href="#/show:');
         __out.push(__sanitize(this.block.id));
-        __out.push('">\n      ');
-        __out.push(__sanitize(_.str.prune(this.block.title, 30)));
-        __out.push('\n    </a>\n  ');
+        __out.push('">\n    ');
+        __out.push(__sanitize(_.str.prune(this.block.title, 25)));
+        __out.push('\n  </a>\n');
       } else {
-        __out.push('\n    <a href="#/show:');
+        __out.push('\n  <a href="#/show:');
         __out.push(__sanitize(this.block.id));
-        __out.push('">\n      Untitled\n    </a>\n  ');
+        __out.push('">\n    Untitled\n  </a>\n');
       }
-    
-      __out.push('\n</div>');
     
     }).call(this);
     
@@ -714,17 +709,17 @@
     (function() {
     
       if (this.prev || this.next) {
-        __out.push('\n  <nav>\n    ');
+        __out.push('\n  <div class="nav arena">\n    ');
         if (this.prev) {
           __out.push('\n      <a href="#/show:');
           __out.push(__sanitize(this.prev.id));
-          __out.push('">Previous</a>\n    ');
+          __out.push('" class="previous">Previous</a>\n    ');
         }
         __out.push('\n    ');
         if (this.channel.mode) {
           __out.push('\n      <a href="#/mode:');
           __out.push(__sanitize(this.channel.mode));
-          __out.push('">Up</a>\n    ');
+          __out.push('" class="up">Up</a>\n    ');
         } else {
           __out.push('\n      <a href="#">Up</a>\n    ');
         }
@@ -732,12 +727,12 @@
         if (this.next) {
           __out.push('\n      <a href="#/show:');
           __out.push(__sanitize(this.next.id));
-          __out.push('">Next</a>\n    ');
+          __out.push('" class="next">Next</a>\n    ');
         }
-        __out.push('\n  </nav>\n');
+        __out.push('\n  </div>\n');
       }
     
-      __out.push('\n\n<div id="block_');
+      __out.push('\n\n<div id="arena_block_');
     
       __out.push(__sanitize(this.block.id));
     
@@ -752,7 +747,7 @@
       __out.push('">\n\n  <!-- TYPE-SPECIFIC OUTPUT: -->\n  ');
     
       if (this.block.block_type === 'Media') {
-        __out.push('\n    <!-- MEDIA -->\n    <div class="embed">\n      ');
+        __out.push('\n    <!-- MEDIA -->\n    <div class="embed media display">\n      ');
         if (this.block.embed_html) {
           __out.push('\n        ');
           __out.push(this.block.embed_html);
@@ -766,23 +761,23 @@
         }
         __out.push('\n    </div>\n  ');
       } else if (this.block.block_type === 'Image') {
-        __out.push('\n    <!-- IMAGE -->\n    <a href="');
+        __out.push('\n    <!-- IMAGE -->\n    <div class="image display">\n      <a href="');
         __out.push(__sanitize(this.block.image_original));
-        __out.push('" class="enlarge">\n      <img src="');
+        __out.push('" class="enlarge">\n        <img src="');
         __out.push(__sanitize(this.block.image_display));
         __out.push('" alt="');
         __out.push(__sanitize(this.block.title));
-        __out.push('" />\n    </a>\n  ');
+        __out.push('" />\n      </a>\n    </div>\n  ');
       } else if (this.block.block_type === 'Link') {
         __out.push('\n    <!-- LINK -->\n    ');
         if (this.block.image_display) {
-          __out.push('\n      <a href="');
+          __out.push('\n    <div class="link display">\n      <a href="');
           __out.push(__sanitize(this.block.link_url));
           __out.push('" class="external" target="_blank">\n        <img src="');
           __out.push(__sanitize(this.block.image_display));
           __out.push('" alt="');
           __out.push(__sanitize(this.block.title));
-          __out.push('" />\n      </a>\n    ');
+          __out.push('" />\n      </a>\n    </div>\n    ');
         } else {
           __out.push('\n      <p>\n        <a href="');
           __out.push(__sanitize(this.block.link_url));
@@ -792,7 +787,7 @@
         }
         __out.push('\n  ');
       } else if (this.block.block_type === 'Text') {
-        __out.push('\n    <!-- TEXT -->\n    <div class="content">\n      ');
+        __out.push('\n    <!-- TEXT -->\n    <div class="text content">\n      ');
         __out.push(this.block.content);
         __out.push('\n    </div>\n  ');
       }
@@ -819,7 +814,7 @@
         __out.push('\n        </div>\n      </div>\n    ');
       }
     
-      __out.push('\n\n    <dl class=\'small meta block_meta\'>\n      ');
+      __out.push('\n\n    <dl class=\'small meta arena_block_meta\'>\n      ');
     
       if (this.block.link_url) {
         __out.push('\n        <dt>URL:</dt>\n        <dd><a href="');
@@ -835,7 +830,7 @@
         __out.push('\n        <dt>Source:</dt>\n        <dd><a href="');
         __out.push(__sanitize(this.block.image_remote_url));
         __out.push('" class="url external" target="_blank">');
-        __out.push(__sanitize(this.block.image_remote_url));
+        __out.push(__sanitize(_.str.prune(this.block.image_remote_url, 40)));
         __out.push('</a></dd>\n      ');
       }
     
@@ -845,7 +840,7 @@
         __out.push('\n        <dt>Source:</dt>\n        <dd><a href="');
         __out.push(__sanitize(this.block.embed_source_url));
         __out.push('" class="url external" target="_blank">');
-        __out.push(__sanitize(this.block.embed_source_url));
+        __out.push(__sanitize(_.str.prune(this.block.embed_source_url, 40)));
         __out.push('</a></dd>\n      ');
       }
     
@@ -853,7 +848,7 @@
     
       __out.push(__sanitize(this.block.username));
     
-      __out.push('</dd>\n    </dl>\n  </div>\n  \n</div><!-- #block -->');
+      __out.push('</dd>\n    </dl>\n  </div>\n  \n</div><!-- #arena_block -->');
     
     }).call(this);
     

@@ -10,8 +10,7 @@ class exports.Channel extends Backbone.Model
     else
       @clear()
       app.loading().start()
-      @set 'slug', slug
-      @set 'fetching', true
+      @set {'slug': slug, 'source': slug, 'fetching': true}
       @.fetch
         success: =>
           @setupBlocks()

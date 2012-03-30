@@ -1,25 +1,25 @@
 <% if @prev or @next: %>
-  <nav>
+  <div class="nav arena">
     <% if @prev: %>
-      <a href="#/show:<%= @prev.id %>">Previous</a>
+      <a href="#/show:<%= @prev.id %>" class="previous">Previous</a>
     <% end %>
     <% if @channel.mode: %>
-      <a href="#/mode:<%= @channel.mode %>">Up</a>
+      <a href="#/mode:<%= @channel.mode %>" class="up">Up</a>
     <% else: %>
       <a href="#">Up</a>
     <% end %>
     <% if @next: %>
-      <a href="#/show:<%= @next.id %>">Next</a>
+      <a href="#/show:<%= @next.id %>" class="next">Next</a>
     <% end %>
-  </nav>
+  </div>
 <% end %>
 
-<div id="block_<%= @block.id %>" class="full <%= @block.block_type.toLowerCase() %>" data-type="<%= @block.block_type %>">
+<div id="arena_block_<%= @block.id %>" class="full <%= @block.block_type.toLowerCase() %>" data-type="<%= @block.block_type %>">
 
   <!-- TYPE-SPECIFIC OUTPUT: -->
   <% if @block.block_type is 'Media': %>
     <!-- MEDIA -->
-    <div class="embed">
+    <div class="embed media display">
       <% if @block.embed_html: %>
         <%- @block.embed_html %>
       <% else: %>
@@ -30,15 +30,19 @@
     </div>
   <% else if @block.block_type is 'Image': %>
     <!-- IMAGE -->
-    <a href="<%= @block.image_original %>" class="enlarge">
-      <img src="<%= @block.image_display %>" alt="<%= @block.title %>" />
-    </a>
+    <div class="image display">
+      <a href="<%= @block.image_original %>" class="enlarge">
+        <img src="<%= @block.image_display %>" alt="<%= @block.title %>" />
+      </a>
+    </div>
   <% else if @block.block_type is 'Link': %>
     <!-- LINK -->
     <% if @block.image_display: %>
+    <div class="link display">
       <a href="<%= @block.link_url %>" class="external" target="_blank">
         <img src="<%= @block.image_display %>" alt="<%= @block.title %>" />
       </a>
+    </div>
     <% else: %>
       <p>
         <a href="<%= @block.link_url %>" class="external url" target="_blank"><%= @block.link_url %></a>
@@ -46,7 +50,7 @@
     <% end %>
   <% else if @block.block_type is 'Text': %>
     <!-- TEXT -->
-    <div class="content">
+    <div class="text content">
       <%- @block.content %>
     </div>
   <% end %>
@@ -71,7 +75,7 @@
       </div>
     <% end %>
 
-    <dl class='small meta block_meta'>
+    <dl class='small meta arena_block_meta'>
       <% if @block.link_url: %>
         <dt>URL:</dt>
         <dd><a href="<%= @block.link_url %>" target="_blank"><%= @block.link_url %></a></dd>
@@ -79,12 +83,12 @@
 
       <% if @block.image_remote_url: %>
         <dt>Source:</dt>
-        <dd><a href="<%= @block.image_remote_url %>" class="url external" target="_blank"><%= @block.image_remote_url %></a></dd>
+        <dd><a href="<%= @block.image_remote_url %>" class="url external" target="_blank"><%= _.str.prune(@block.image_remote_url, 40) %></a></dd>
       <% end %>
       
       <% if @block.embed_source_url: %>
         <dt>Source:</dt>
-        <dd><a href="<%= @block.embed_source_url %>" class="url external" target="_blank"><%= @block.embed_source_url %></a></dd>
+        <dd><a href="<%= @block.embed_source_url %>" class="url external" target="_blank"><%= _.str.prune(@block.embed_source_url, 40) %></a></dd>
       <% end %>
 
       <dt>Added by:</dt>
@@ -92,4 +96,4 @@
     </dl>
   </div>
   
-</div><!-- #block -->
+</div><!-- #arena_block -->
