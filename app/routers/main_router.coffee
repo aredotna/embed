@@ -5,19 +5,19 @@
 
 class exports.MainRouter extends Backbone.Router
   routes:
-    ''                  : 'collection'
-    '/:slug'            : 'collection'
-    '/:slug/mode::mode' : 'collection'
-    '/:slug/show::id'   : 'single'
+    ''            : 'collection'
+    '/mode::mode' : 'collection'
+    '/show::id'   : 'single'
 
   initialize: ->
+    @source  = app.findAndExtractSource()
     @channel = new Channel()
 
-  collection: (slug, mode = 'grid') ->
+  collection: (mode = 'grid') ->
     # Save the current view mode in the channel
     @channel.set {'mode', mode}
 
-    $.when(@channel.maybeLoad slug).then =>
+    $.when(@channel.maybeLoad @source).then =>
       @collectionView = new CollectionView
         model       : @channel
         collection  : @channel.blocks
@@ -26,8 +26,8 @@ class exports.MainRouter extends Backbone.Router
         .attr('class', 'collection')
         .html @collectionView.render().el
 
-  single: (slug, id) ->
-    $.when(@channel.maybeLoad slug).then =>
+  single: (id) ->
+    $.when(@channel.maybeLoad @source).then =>
       @singleView = new SingleView
         model       : @channel.blocks.get id
         collection  : @channel.blocks

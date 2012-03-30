@@ -303,23 +303,23 @@
 
     MainRouter.prototype.routes = {
       '': 'collection',
-      '/:slug': 'collection',
-      '/:slug/mode::mode': 'collection',
-      '/:slug/show::id': 'single'
+      '/mode::mode': 'collection',
+      '/show::id': 'single'
     };
 
     MainRouter.prototype.initialize = function() {
+      this.source = app.findAndExtractSource();
       return this.channel = new Channel();
     };
 
-    MainRouter.prototype.collection = function(slug, mode) {
+    MainRouter.prototype.collection = function(mode) {
       var _this = this;
       if (mode == null) mode = 'grid';
       this.channel.set({
         'mode': 'mode',
         mode: mode
       });
-      return $.when(this.channel.maybeLoad(slug)).then(function() {
+      return $.when(this.channel.maybeLoad(this.source)).then(function() {
         _this.collectionView = new CollectionView({
           model: _this.channel,
           collection: _this.channel.blocks,
@@ -329,9 +329,9 @@
       });
     };
 
-    MainRouter.prototype.single = function(slug, id) {
+    MainRouter.prototype.single = function(id) {
       var _this = this;
-      return $.when(this.channel.maybeLoad(slug)).then(function() {
+      return $.when(this.channel.maybeLoad(this.source)).then(function() {
         _this.singleView = new SingleView({
           model: _this.channel.blocks.get(id),
           collection: _this.channel.blocks,
@@ -371,7 +371,7 @@
     Application.prototype.initialize = function() {
       this.createEl();
       this.loading().start();
-      return this.router = new MainRouter;
+      return this.router = new MainRouter();
     };
 
     return Application;
@@ -645,9 +645,7 @@
       __out.push('<div class="thumb">\n  ');
     
       if (this.block.image_thumb) {
-        __out.push('\n    <div class="image">\n      <a href="#/');
-        __out.push(__sanitize(this.channel.slug));
-        __out.push('/show:');
+        __out.push('\n    <div class="image">\n      <a href="#/show:');
         __out.push(__sanitize(this.block.id));
         __out.push('">\n        <img src="');
         __out.push(__sanitize(this.block.image_thumb));
@@ -655,17 +653,13 @@
         __out.push(__sanitize(this.block.title));
         __out.push('" />\n      </a>\n    </div>\n  ');
       } else if (this.block.title) {
-        __out.push('\n    <a href="#/');
-        __out.push(__sanitize(this.channel.slug));
-        __out.push('/show:');
+        __out.push('\n    <a href="#/show:');
         __out.push(__sanitize(this.block.id));
         __out.push('">\n      ');
         __out.push(__sanitize(_.str.prune(this.block.title, 30)));
         __out.push('\n    </a>\n  ');
       } else {
-        __out.push('\n    <a href="#/');
-        __out.push(__sanitize(this.channel.slug));
-        __out.push('/show:');
+        __out.push('\n    <a href="#/show:');
         __out.push(__sanitize(this.block.id));
         __out.push('">\n      Untitled\n    </a>\n  ');
       }
@@ -725,29 +719,21 @@
       if (this.prev || this.next) {
         __out.push('\n  <nav>\n    ');
         if (this.prev) {
-          __out.push('\n      <a href="#/');
-          __out.push(__sanitize(this.channel.slug));
-          __out.push('/show:');
+          __out.push('\n      <a href="#/show:');
           __out.push(__sanitize(this.prev.id));
           __out.push('">Previous</a>\n    ');
         }
         __out.push('\n    ');
         if (this.channel.mode) {
-          __out.push('\n      <a href="#/');
-          __out.push(__sanitize(this.channel.slug));
-          __out.push('/mode:');
+          __out.push('\n      <a href="#/mode:');
           __out.push(__sanitize(this.channel.mode));
           __out.push('">Up</a>\n    ');
         } else {
-          __out.push('\n      <a href="#/');
-          __out.push(__sanitize(this.channel.slug));
-          __out.push('">Up</a>\n    ');
+          __out.push('\n      <a href="#">Up</a>\n    ');
         }
         __out.push('\n    ');
         if (this.next) {
-          __out.push('\n      <a href="#/');
-          __out.push(__sanitize(this.channel.slug));
-          __out.push('/show:');
+          __out.push('\n      <a href="#/show:');
           __out.push(__sanitize(this.next.id));
           __out.push('">Next</a>\n    ');
         }
@@ -814,11 +800,7 @@
         __out.push('\n    </div>\n  ');
       }
     
-      __out.push('\n\n  <!-- UNIVERSAL OUTPUT: -->\n  <div class="metadata">\n    <h3 class="title">\n      <a href="#/');
-    
-      __out.push(__sanitize(this.channel.slug));
-    
-      __out.push('/show:');
+      __out.push('\n\n  <!-- UNIVERSAL OUTPUT: -->\n  <div class="metadata">\n    <h3 class="title">\n      <a href="#/show:');
     
       __out.push(__sanitize(this.block.id));
     
