@@ -1,3 +1,4 @@
+if(typeof(jQuery) === 'undefined'){
 /*!
  * jQuery JavaScript Library v1.7.1
  * http://jquery.com/
@@ -9263,4 +9264,4 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 
 
 
-})( window );
+})( window );}

@@ -14,12 +14,12 @@ exports.config =
       joinTo:
         'javascripts/app.js': /^app/
         'javascripts/vendor.js': /^vendor/
+        'javascripts/arena.js' : /^app|^vendor/
       # Defines compilation order.
       # `vendor` files will be compiled before other ones
       # even if they are not present here.
       order:
         before: [
-          'vendor/scripts/jquery-check.js',
           'vendor/scripts/console-helper.js',
           'vendor/scripts/jquery-1.7.1.js',
           'vendor/scripts/underscore-1.3.1.js',
@@ -33,14 +33,15 @@ exports.config =
 
     templates:
       defaultExtension: 'eco'
-      joinTo: 'javascripts/app.js'
+      joinTo: 
+        'javascripts/arena.js'
 
   # Change this if you're using something other than backbone (e.g. 'ember').
   # Content of files, generated with `brunch generate` depends on the setting.
   # framework: 'backbone'
 
   # Enable or disable minifying of result js / css files.
-  minify: no
+  minify: yes
 
   # Settings of web server that will run with `brunch watch [--server]`.
   # server:
