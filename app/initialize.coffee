@@ -18,10 +18,15 @@ class exports.Application extends BrunchApplication
 
     $("head").append("<link>");
     css = $("head").children(":last");
+    # css.attr({
+    #   rel:  "stylesheet",
+    #   type: "text/css",
+    #   href: "http://arena_static.s3.amazonaws.com/app.css"
+    # });
     css.attr({
       rel:  "stylesheet",
       type: "text/css",
-      href: "http://arena_static.s3.amazonaws.com/app.css"
-    });   
+      href: "stylesheets/app.css"
+    });  
     
 window.app = new exports.Application

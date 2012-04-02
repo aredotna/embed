@@ -1,1 +1,8 @@
 <div id="arena_blocks" class="arena_grid"></div>
+<div class="channel-footer">
+  <div id="channel-link">
+    <a href="http://are.na/#/<%= @channel.slug%>"> <%= @channel.title %> </a>
+  </div>
+  <div id="arena-logo"><a href="http://are.na">&nbsp;</a></div>
+  <div id="arena-slogan">Powered by <a href="http://are.na">Arena</a></div>
+</div>

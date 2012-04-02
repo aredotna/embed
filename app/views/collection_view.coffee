@@ -19,6 +19,7 @@ class exports.CollectionView extends Backbone.View
     @$('#arena_blocks').append view.render().el
 
   render: ->
+    console.log(@model)
     @$el.html @template
       channel : @model.toJSON()
       blocks  : @collection.toJSON()
