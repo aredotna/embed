@@ -21,7 +21,7 @@ class exports.Application extends BrunchApplication
     css.attr({
       rel:  "stylesheet",
       type: "text/css",
-      href: "stylesheets/app.css"
+      href: "http://arena_static.s3.amazonaws.com/app.css"
     });   
     
 window.app = new exports.Application
